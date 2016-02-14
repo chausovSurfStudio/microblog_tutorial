@@ -1,6 +1,5 @@
 from flask import Flask
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.wtf import Form
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'very_hard_key_092758'
 from app import views
