@@ -1,4 +1,4 @@
-from run import app
+from app import app
 from flask import render_template, session, redirect, url_for, flash
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.wtf import Form
