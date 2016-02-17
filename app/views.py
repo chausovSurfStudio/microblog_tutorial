@@ -4,6 +4,8 @@ from flask.ext.bootstrap import Bootstrap
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField
 from wtforms.validators import Required
+from app import model
+from model import User, db
 
 bootstrap = Bootstrap(app)
 
@@ -16,13 +18,17 @@ class NameForm(Form):
 def index():
     form = NameForm()
     if form.validate_on_submit():
-        oldName = session.get('name')
-        if oldName is not None and oldName != form.name.data:
-            flash('Looks like you have changed your name!')
+        user = User.query.filter_by(username = form.name.data).first()
+        if user is None:
+            user = User(username = form.name.data)
+            db.session.add(user)
+            session['known'] = False
+        else:
+            session['known'] = True
         session['name'] = form.name.data
         form.name.data = ''
         return redirect(url_for('index'))
-    return render_template('index.html', form = form, name = session.get('name'))
+    return render_template('index.html', form = form, name = session.get('name'), known = session.get('known', False))
 
 @app.route('/user/<name>')
 def user(name):
