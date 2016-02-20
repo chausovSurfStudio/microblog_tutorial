@@ -1,17 +1,20 @@
 from app import app
-from flask import render_template, session, redirect, url_for, flash
+from flask import render_template, session, redirect, url_for, flash, request
+from flask.ext.login import login_user, login_required, logout_user
+
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 from app import model
 from model import User, db
+from forms import LoginForm
 
 bootstrap = Bootstrap(app)
 
 class NameForm(Form):
-	name = StringField('What is your name?', validators=[Required()])
-	submit = SubmitField('Submit')
+    name = StringField('What is your name?', validators=[Required()])
+    submit = SubmitField('Submit')
 
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
@@ -32,10 +35,22 @@ def index():
 
 @app.route('/user/<name>')
 def user(name):
-	return render_template('user.html', name = name)
+    return render_template('user.html', name = name)
 
-@app.route('/auth/login')
+@app.route('/auth/login', methods = ['GET', 'POST'])
 def login():
-    return render_template('auth/login.html')
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email = form.email.data).first()
+        if user is not None and user.verify_password(form.password.data):
+            login_user(user, form.remember_me.data)
+            return redirect(requst.args.get('next') or url_for('index'))
+            flash('Invalid username or password')
+    return render_template('auth/login.html', form = form)
 
-
+@app.route('/auth/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out')
+    return redirect(url_for('index'))
