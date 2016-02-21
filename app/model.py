@@ -26,7 +26,7 @@ class User(UserMixin, db.Model):
     def password(self):
         raise AttributeError('password is not a readable attribute')
 
-    @property
+    @password.setter
     def password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -36,6 +36,6 @@ class User(UserMixin, db.Model):
     def __rept__(self):
         return '<User %r' % self.username
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
