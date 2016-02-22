@@ -5,7 +5,7 @@ from flask.ext.bootstrap import Bootstrap
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField
 from wtforms.validators import Required
-from app import model
+from app import model, send_mail
 from model import User, db
 from forms import LoginForm, NameForm, RegistrationForm
 
@@ -30,6 +30,9 @@ def index():
 
 @app.route('/user/<name>')
 def user(name):
+    if app.config['FLASKY_ADMIN']:
+        print(app.config['FLASKY_ADMIN'],app.config['MAIL_USERNAME'],app.config['MAIL_PASSWORD'])
+        send_mail(app.config['FLASKY_ADMIN'], 'Fucking message', 'mail/fucking_msg')
     return render_template('user.html', name = name)
 
 @app.route('/auth/login', methods = ['GET', 'POST'])
