@@ -7,7 +7,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 from app import model, send_mail
 from model import User, db
-from forms import LoginForm, NameForm, RegistrationForm, ChangePasswordForm
+from forms import LoginForm, NameForm, RegistrationForm, ChangePasswordForm, ResetPasswordFirstForm, ResetPasswordFinalStepForm
 
 bootstrap = Bootstrap(app)
 
@@ -99,17 +99,45 @@ def profile():
 @login_required
 def change_password():
     form = ChangePasswordForm()
-    print('before if')
     if form.validate_on_submit():
-        print('we are in if')
         current_user.password = form.password.data
         db.session.add(current_user)
         db.session.commit()
         send_mail(current_user.email, 'Password was change', 'mail/change_password_mail', user = current_user)
         flash('Email about changing password has been sent to you by email.')
         return redirect(url_for('login'))
-    print('before return')
     return render_template('change_password.html', form = form)
+
+@app.route('/login/reset_password', methods = ['GET', 'POST'])
+def reset_password():
+    form = ResetPasswordFirstForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email = form.email.data).first()
+        if not user:
+            flash('Invalid email')
+        else:
+            token = user.generate_confirmation_token()
+            send_mail(user.email, 'Reset password', 'mail/reset_password_mail', user = user, token = token)
+            flash('Email to reset your password has been sent to you by email.')
+            return redirect(url_for('index'))
+    return render_template('reset_password.html', form = form)
+
+@app.route('/login/reset_password_final/<token>', methods = ['GET', 'POST'])
+def reset_password_final(token):
+    form = ResetPasswordFinalStepForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email = form.email.data).first()
+        if not user:
+            flash('Invalid email')
+        else:
+            if not user.confirm(token):
+                flash('The confirmation link is invalid or has expired')
+            else:
+                user.password = form.password.data
+                db.session.add(user)
+                flash('Your password has been reset')
+        return redirect(url_for('index'))
+    return render_template('reset_password_final.html', form = form)
 
 def before_request():
     if current_user.is_authenticated and not current_user.confirmed and request.endpoint[:5] != 'auth.':

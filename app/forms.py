@@ -39,3 +39,13 @@ class ChangePasswordForm(Form):
 	def validate_oldPassword(self, field):
 		if not current_user.verify_password(field.data):
 			raise ValidationError('You must input old password there')
+
+class ResetPasswordFirstForm(Form):
+	email = StringField('Email', validators = [Required(), Length(1, 64), Email()])
+	submit = SubmitField('Send email to reset password')
+
+class ResetPasswordFinalStepForm(Form):
+	email = StringField('Email', validators = [Required(), Length(1, 64), Email()])
+	password = PasswordField('New password', validators = [Required(), EqualTo('password2', message = 'Passwords must much')])
+	password2 = PasswordField('Confirm new password', validators = [Required()])
+	submit = SubmitField('Reset password')
