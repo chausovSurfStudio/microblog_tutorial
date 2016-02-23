@@ -150,7 +150,6 @@ def change_email():
         return redirect(url_for('index'))
     return render_template('auth/change_email.html', form = form)
 
-@app.route('/auth/confirm_change_email/<token>', defaults = {'email': None})
 @app.route('/auth/confirm_change_email/<token>/<email>')
 @login_required
 def confirm_change_email(email, token):
