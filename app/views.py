@@ -7,7 +7,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 from app import model, send_mail
 from model import User, db
-from forms import LoginForm, NameForm, RegistrationForm
+from forms import LoginForm, NameForm, RegistrationForm, ChangePasswordForm
 
 bootstrap = Bootstrap(app)
 
@@ -89,6 +89,27 @@ def resend_confirmation():
     send_mail(current_user.email, 'Confirm Your Account', 'mail/confirm', user = current_user, token = token)
     flash('A new confirmation email has been sent to you')
     return redirect(url_for('index'))
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html')
+
+@app.route('/profile/change_password', methods = ['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    print('before if')
+    if form.validate_on_submit():
+        print('we are in if')
+        current_user.password = form.password.data
+        db.session.add(current_user)
+        db.session.commit()
+        send_mail(current_user.email, 'Password was change', 'mail/change_password_mail', user = current_user)
+        flash('Email about changing password has been sent to you by email.')
+        return redirect(url_for('login'))
+    print('before return')
+    return render_template('change_password.html', form = form)
 
 def before_request():
     if current_user.is_authenticated and not current_user.confirmed and request.endpoint[:5] != 'auth.':
