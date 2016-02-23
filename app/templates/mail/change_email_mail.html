@@ -1,0 +1,4 @@
+<p>Dear {{ user.username }}, </p>
+<p>To confirm change your email address please click on the following link:</p>
+<p>{{ url_for('confirm_change_email', token = token, email = email, _external = True) }}</p>
+<p>Всего хорошего, брат!</p>

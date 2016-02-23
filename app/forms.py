@@ -49,3 +49,7 @@ class ResetPasswordFinalStepForm(Form):
 	password = PasswordField('New password', validators = [Required(), EqualTo('password2', message = 'Passwords must much')])
 	password2 = PasswordField('Confirm new password', validators = [Required()])
 	submit = SubmitField('Reset password')
+
+class ChangeEmailForm(Form):
+	email = StringField('New email', validators = [Required(), Length(1, 64), Email()])
+	submit = SubmitField('Change email address')

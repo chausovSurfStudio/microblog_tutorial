@@ -7,7 +7,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 from app import model, send_mail
 from model import User, db
-from forms import LoginForm, NameForm, RegistrationForm, ChangePasswordForm, ResetPasswordFirstForm, ResetPasswordFinalStepForm
+from forms import LoginForm, NameForm, RegistrationForm, ChangePasswordForm, ResetPasswordFirstForm, ResetPasswordFinalStepForm, ChangeEmailForm
 
 bootstrap = Bootstrap(app)
 
@@ -138,6 +138,29 @@ def reset_password_final(token):
                 flash('Your password has been reset')
         return redirect(url_for('index'))
     return render_template('reset_password_final.html', form = form)
+
+@app.route('/auth/change_email', methods = ['GET', 'POST'])
+@login_required
+def change_email():
+    form = ChangeEmailForm()
+    if form.validate_on_submit():
+        token = current_user.generate_confirmation_token()
+        send_mail(form.email.data, 'Change email address', 'mail/change_email_mail', user = current_user, token = token, email = form.email.data)
+        flash('Mail to confirm has been send in your new address')
+        return redirect(url_for('index'))
+    return render_template('auth/change_email.html', form = form)
+
+@app.route('/auth/confirm_change_email/<token>', defaults = {'email': None})
+@app.route('/auth/confirm_change_email/<token>/<email>')
+@login_required
+def confirm_change_email(email, token):
+    if current_user.confirm(token):
+        current_user.email = email;
+        db.session.add(current_user)
+        flash('You changed your email address')
+    else:
+        flash('The confirmation link is invalid or has expired')
+    return redirect(url_for('index'))
 
 def before_request():
     if current_user.is_authenticated and not current_user.confirmed and request.endpoint[:5] != 'auth.':
