@@ -171,3 +171,16 @@ def confirm_change_email(email, token):
 def before_request():
     if current_user.is_authenticated and not current_user.confirmed and request.endpoint[:5] != 'auth.':
         return redirect(url_for('unconfirmed'))
+
+#ERROR HANDLER
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error/404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('error/500.html'), 500
+
+@app.errorhandler(403)
+def forbidden_page(e):
+    return render_template('error/403.html'), 403
