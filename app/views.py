@@ -8,6 +8,7 @@ from wtforms.validators import Required
 from app import model, send_mail
 from model import User, db
 from forms import LoginForm, NameForm, RegistrationForm, ChangePasswordForm, ResetPasswordFirstForm, ResetPasswordFinalStepForm, ChangeEmailForm
+from decorators import admin_required, permission_required
 
 bootstrap = Bootstrap(app)
 
@@ -27,6 +28,12 @@ def index():
         form.name.data = ''
         return redirect(url_for('index'))
     return render_template('index.html', form = form, name = session.get('name'), known = session.get('known', False))
+
+@app.route('/admin')
+@login_required
+@admin_required
+def for_admin_only():
+    return "For administrator!"
 
 @app.route('/user/<name>')
 def user(name):
