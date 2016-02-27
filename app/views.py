@@ -93,7 +93,7 @@ def resend_confirmation():
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html')
+    return render_template('profile.html', role = current_user.role)
 
 @app.route('/profile/change_password', methods = ['GET', 'POST'])
 @login_required
