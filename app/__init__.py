@@ -21,6 +21,10 @@ app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = '[Flasky]'
 app.config['FLASKY_MAIL_SENDER'] = 'Flasky Admin <traktoro_13@mail.ru>'
 mail = Mail(app)
 
+@main.app_context_processor
+def inject_permissions():
+	return dict(Permission = Permission)
+
 def send_async_email(app, msg):
 	with app.app_context():
 		mail.send(msg)
