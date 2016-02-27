@@ -35,10 +35,10 @@ def index():
 def for_admin_only():
     return "For administrator!"
 
-@app.route('/user/<name>')
-def user(name):
+@app.route('/user_nav_bar/<name>')
+def user_nav_bar(name):
     User.query.delete()
-    return render_template('user.html', name = name)
+    return render_template('user_nav_bar.html', name = name)
 
 @app.route('/auth/login', methods = ['GET', 'POST'])
 def login():
@@ -96,6 +96,14 @@ def resend_confirmation():
     send_mail(current_user.email, 'Confirm Your Account', 'mail/confirm', user = current_user, token = token)
     flash('A new confirmation email has been sent to you')
     return redirect(url_for('index'))
+
+@app.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(username = username).first()
+    if user is None:
+        abort(404)
+    return render_template('user.html', user = user)
 
 @app.route('/profile')
 @login_required
@@ -169,8 +177,10 @@ def confirm_change_email(email, token):
     return redirect(url_for('index'))
 
 def before_request():
-    if current_user.is_authenticated and not current_user.confirmed and request.endpoint[:5] != 'auth.':
-        return redirect(url_for('unconfirmed'))
+    if current_user.is_authenticated():
+        current_user.ping()
+        if not current_user.confirmed and request.endpoint[:5] != 'auth.':
+            return redirect(url_for('unconfirmed'))
 
 #ERROR HANDLER
 @app.errorhandler(404)

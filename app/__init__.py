@@ -21,6 +21,9 @@ app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = '[Flasky]'
 app.config['FLASKY_MAIL_SENDER'] = 'Flasky Admin <traktoro_13@mail.ru>'
 mail = Mail(app)
 
+from flask.ext.moment import Moment
+moment = Moment(app)
+
 from model import Permission
 
 @app.context_processor
