@@ -1,5 +1,5 @@
 from flask.ext.wtf import Form
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
 from wtforms.validators import Required, Email, Length, Regexp, EqualTo
 from wtforms import ValidationError
 from model import User
@@ -53,3 +53,9 @@ class ResetPasswordFinalStepForm(Form):
 class ChangeEmailForm(Form):
 	email = StringField('New email', validators = [Required(), Length(1, 64), Email()])
 	submit = SubmitField('Change email address')
+
+class EditProfileForm(Form):
+	name = StringField('Real name', validators = [Length(0, 64)])
+	location = StringField('Location', validators = [Length(0, 64)])
+	about_me = TextAreaField('About me')
+	submit = SubmitField('Submit')

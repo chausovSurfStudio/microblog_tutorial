@@ -8,6 +8,7 @@ from wtforms.validators import Required
 from app import model, send_mail
 from model import User, db
 from forms import LoginForm, NameForm, RegistrationForm, ChangePasswordForm, ResetPasswordFirstForm, ResetPasswordFinalStepForm, ChangeEmailForm
+from forms import EditProfileForm
 from decorators import admin_required, permission_required
 
 bootstrap = Bootstrap(app)
@@ -104,6 +105,22 @@ def user(username):
     if user is None:
         abort(404)
     return render_template('user.html', user = user)
+
+@app.route('/edit_profile', methods = ['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.name = form.name.data
+        current_user.location = form.location.data
+        current_user.about_me = form.about_me.data
+        db.session.add(current_user)
+        flash('Your profile has been updated')
+        return redirect(url_for('user', username = current_user.username))
+    form.name.data = current_user.name
+    form.location.data = current_user.location
+    form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', form = form)
 
 @app.route('/profile')
 @login_required
