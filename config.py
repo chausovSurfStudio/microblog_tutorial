@@ -1,7 +1,7 @@
 import os
 
 SECRET_KEY = 'very_hard_key_092758'
-SQLALCHEMY_DATABASE_URI = 'sqlite:////Users/admin/Documents/VSU/Python/microblog_tutorial/app/data.sqlite'
+SQLALCHEMY_DATABASE_URI = 'sqlite:////Users/chausovalexander/Documents/surfstudio_project/microblog_tutorial/app/data.sqlite'
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 MAIL_SERVER = 'smtp.googlemail.com'
 MAIL_PORT = 465
