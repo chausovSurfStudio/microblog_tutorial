@@ -213,8 +213,7 @@ def change_email():
 @login_required
 def confirm_change_email(email, token):
     if current_user.confirm(token):
-        current_user.email = email;
-        db.session.add(current_user)
+        current_user.change_email(email)
         flash('You changed your email address')
     else:
         flash('The confirmation link is invalid or has expired')
