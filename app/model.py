@@ -99,7 +99,7 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         return True
 
-    def ping():
+    def ping(self):
         self.last_seen = datetime.utcnow()
         db.session.add(self)
 
