@@ -6,9 +6,9 @@ from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 from app import model, send_mail
-from model import User, db, Role
+from model import User, db, Role, Post, Permission
 from forms import LoginForm, NameForm, RegistrationForm, ChangePasswordForm, ResetPasswordFirstForm, ResetPasswordFinalStepForm, ChangeEmailForm
-from forms import EditProfileForm, EditProfileAdminForm
+from forms import EditProfileForm, EditProfileAdminForm, PostForm
 from decorators import admin_required, permission_required
 
 bootstrap = Bootstrap(app)
@@ -16,19 +16,13 @@ bootstrap = Bootstrap(app)
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
 def index():
-    form = NameForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username = form.name.data).first()
-        if user is None:
-            user = User(username = form.name.data)
-            db.session.add(user)
-            session['known'] = False
-        else:
-            session['known'] = True
-        session['name'] = form.name.data
-        form.name.data = ''
+    form = PostForm()
+    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+        post = Post(body = form.body.data, author = current_user._get_current_object())
+        db.session.add(post)
         return redirect(url_for('index'))
-    return render_template('index.html', form = form, name = session.get('name'), known = session.get('known', False))
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('index.html', form = form, posts = posts)
 
 @app.route('/admin')
 @login_required
